@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyberlofi Lab - Gerador Master v2</title>
+    <style>
+        body {
+            background-color: #050508;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #0a0a0f;
+            padding: 30px;
+            border: 1px solid #00ffcc;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.15);
+        }
+        
+        h1 {
+            color: #ff00ff;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 1px dashed #aa00ff;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #b3b3b3;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        
+        select {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            background-color: #12121a;
+            color: #fff;
+            border: 1px solid #aa00ff;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+        
+        button.btn-gerar {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 18px;
+            background-color: #aa00ff;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        button.btn-gerar:hover {
+            background-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        
+        .output-group {
+            margin-top: 35px;
+            text-align: left;
+        }
+        
+        .output-group label {
+            color: #00ffcc;
+        }
+        
+        textarea {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #000;
+            color: #e6e6e6;
+            border: 1px solid #333;
+            border-left: 4px solid #ff00ff;
+            border-radius: 4px 4px 0 0;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        .prompt-box { height: 120px; }
+        .title-box { height: 50px; }
+        .desc-box { height: 220px; }
+        
+        .copy-btn {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 0;
+            background-color: #12121a;
+            color: #00ffcc;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background-color: #2a2a35;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cyberlofi Lab :: Sistema Central</h1>
+        
+        <div class="form-group">
+            <label for="estilo">1. Motor Sonoro (Estilo Base)</label>
+            <select id="estilo">
+                <option value="lofi">Lo-fi Hip Hop (Clássico, Quente, Analógico)</option>
+                <option value="synthwave">Cyberpunk Synthwave (Energético, Linhas de Baixo, Retrô)</option>
+                <option value="ambient">Dark Space Ambient (Sem batida, Atmosférico, Profundo)</option>
+                <option value="chillwave">Chillwave / Vaporwave (Sonhador, Nostálgico, Sintetizadores Suaves)</option>
+                <option value="industrial">Underground Industrial (Tenso, Distorcido, Hacker Intensivo)</option>
+                <option value="zen">Neo-Tokyo Zen (Instrumentos Asiáticos, Eletrônico Calmo)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="frequencia">2. Sintonia de Frequência (Binaural & Solfeggio)</label>
+            <select id="frequencia">
+                <option value="none">Padrão (Foco na Musicalidade)</option>
+                <option value="432hz">432 Hz (Frequência Universal - Alívio de Stress)</option>
+                <option value="528hz">528 Hz (Tom dos Milagres - Clareza e Reparação)</option>
+                <option value="396hz">396 Hz (Libertação de Medo e Culpa)</option>
+                <option value="alpha">Ondas Alfa 10 Hz (Foco Criativo e Relaxamento Ativo)</option>
+                <option value="theta">Ondas Theta 6 Hz (Meditação, Deep Work Noturno)</option>
+                <option value="beta">Ondas Beta 15 Hz (Concentração Extrema, Lógica, Código)</option>
+                <option value="gamma">Ondas Gamma 40 Hz (Pico de Performance, Resolução de Problemas)</option>
+                <option value="delta">Ondas Delta 3 Hz (Relaxamento Absoluto, Fim do Expediente)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="cenario">3. Interface Visual (Cenário do Vídeo)</label>
+            <select id="cenario">
+                <option value="hacker_room">Quarto de Hacker (Chuva, Código, Café)</option>
+                <option value="neon_drive">Night Drive (Carro Retrô, Cidade Neon, Asfalto Molhado)</option>
+                <option value="deep_space">Estação Espacial (Nebulosa, Corredores Escuros, Sci-fi)</option>
+                <option value="arcade">Fliperama 80s (Gabinetes Neon, Piso Xadrez, Nostalgia)</option>
+                <option value="rooftop">Jardim no Telhado (Neo-Tokyo, Bonsai Neon, Paz Urbana)</option>
+                <option value="subway">Metrô Distópico (Vagão Vazio, Passageiro Solitário, Luzes Piscando)</option>
+                <option value="server_room">Sala de Servidores (LEDs Azuis, Dados Holográficos, Frio)</option>
+            </select>
+        </div>
+        
+        <button class="btn-gerar" onclick="gerarPrompts()">Sintetizar Projeto Completo</button>
+
+        <!-- SECÇÃO DE PROMPTS DE IA -->
+        <div class="output-group">
+            <label for="promptAudio">Input Suno AI / Stable Audio:</label>
+            <textarea id="promptAudio" class="prompt-box" readonly></textarea>
+            <button id="btnAudio" class="copy-btn" onclick="copiarTexto('promptAudio', 'btnAudio')">Copiar Prompt de Áudio</button>
+        </div>
+        
+        <div class="output-group">
+            <label for="promptImagem">Input Leonardo.ai / Midjourney:</label>
+            <textarea id="promptImagem" class="prompt-box" readonly></textarea>
+            <button id="btnImg" class="copy-btn" onclick="copiarTexto('promptImagem', 'btnImg')">Copiar Prompt de Imagem</button>
+        </div>
+
+        <!-- SECÇÃO DE METADADOS YOUTUBE -->
+        <div class="output-group">
+            <label for="tituloYoutube">Título Otimizado para o YouTube:</label>
+            <textarea id="tituloYoutube" class="title-box" readonly></textarea>
+            <button id="btnTitulo" class="copy-btn" onclick="copiarTexto('tituloYoutube', 'btnTitulo')">Copiar Título</button>
+        </div>
+
+        <div class="output-group">
+            <label for="descYoutube">Descrição do Vídeo (com Tags):</label>
+            <textarea id="descYoutube" class="desc-box" readonly></textarea>
+            <button id="btnDesc" class="copy-btn" onclick="copiarTexto('descYoutube', 'btnDesc')">Copiar Descrição Completa</button>
+        </div>
+    </div>
+
+    <script>
+        // Inicializa ao abrir a página
+        window.onload = function() {
+            gerarPrompts();
+        };
+
+        // Dicionários para IA (Suno & Leonardo)
+        const estilos = {
+            "lofi": "lofi hip hop beat, cozy ambient textures, dusty SP-404 drum machine, warm rhodes piano chords, mellow deep bassline, warm vinyl crackle, cassette tape saturation, 75 BPM",
+            "synthwave": "cyberpunk dark synthwave, driving pulsing analog bassline, retro 80s synthesizers, punchy electronic drum machine, neon atmospheric pads, hypnotic rhythm, 110 BPM",
+            "ambient": "deep dark space ambient drone, slow evolving cinematic synthesizer pads, minimal metallic textures, weightless and spacious atmosphere, beatless, 60 BPM",
+            "chillwave": "lush chillwave, dreamy analog synthesizer pads, retro 80s nostalgia, smooth electric bass, slow steady electronic beat, ethereal atmosphere, 85 BPM",
+            "industrial": "underground industrial cyberpunk, heavy distorted synths, gritty mechanical percussion, aggressive bass pulses, dark and tense coding vibe, 100 BPM",
+            "zen": "chillwave cyberpunk ambient, lush atmospheric synthesizer pads, subtle traditional Asian instruments mixed with electronic sounds, deep smooth bass, highly relaxing, 80 BPM"
+        };
+
+        const frequencias = {
+            "none": "",
+            "432hz": ", meticulously tuned to 432 Hz healing frequency, stress relief resonance",
+            "528hz": ", tuned to 528 Hz miracle tone, mental clarity and deep relaxation",
+            "396hz": ", tuned to 396 Hz solfeggio frequency, liberating and grounding energy",
+            "alpha": ", embedded with subtle 10 Hz binaural alpha waves, enhanced brain focus state and creative flow",
+            "theta": ", embedded with subtle 6 Hz binaural theta waves, deep relaxation and meditative coding state",
+            "beta": ", embedded with 15 Hz binaural beta waves, extreme active concentration and logic solving",
+            "gamma": ", embedded with 40 Hz gamma waves, peak cognitive performance and high alertness",
+            "delta": ", embedded with 3 Hz delta waves, deep restorative relaxation"
+        };
+
+        const cenariosAudio = {
+            "hacker_room": ", rainy late night coding atmosphere, immersive, instrumental, clean mix, seamless loop",
+            "neon_drive": ", late night city driving vibe, energetic but focused, instrumental, crisp production, seamless loop",
+            "deep_space": ", mysterious floating in deep space vibe, ethereal, instrumental, crisp high-end, seamless loop",
+            "arcade": ", nostalgic retro arcade hall atmosphere, instrumental, crisp production, seamless loop",
+            "rooftop": ", peaceful elevated cyberpunk city atmosphere, gentle wind sounds, instrumental, seamless loop",
+            "subway": ", underground dystopian train ambient rumble, moving forward sensation, instrumental, seamless loop",
+            "server_room": ", cold technological server room drone, high tech atmosphere, instrumental, seamless loop"
+        };
+
+        const cenariosImagem = {
+            "hacker_room": "A dimly lit messy futuristic hacker room at night, heavy rain outside the window, multiple glowing monitors displaying green and blue code, mechanical keyboard, steaming mug of coffee, cyberpunk aesthetic, volumetric lighting, photorealistic, 8k, Unreal Engine 5 render, masterpiece, 16:9",
+            "neon_drive": "A sleek retro-futuristic car driving through a neon-lit Tokyo street at midnight, wet asphalt reflecting vibrant pink and cyan neon signs, cinematic low camera angle, cyberpunk aesthetic, hyper-detailed, ray tracing, 8k resolution, 16:9",
+            "deep_space": "Interior of an abandoned futuristic space station observing a massive glowing purple nebula through a giant glass window, dark metallic corridors, cold cyan emergency lighting, sci-fi cinematic composition, highly detailed, 8k, Octane Render, 16:9",
+            "arcade": "A vibrant 1980s retro arcade interior at night, glowing neon arcade cabinets, colorful pixelated screens reflecting on a shiny checkerboard floor, ambient purple and cyan lighting, cinematic, highly detailed, 8k resolution, 16:9",
+            "rooftop": "A serene cyberpunk rooftop garden at night in Neo-Tokyo, a glowing neon bonsai tree, holographic cherry blossom petals falling, city skyline in the background with pink and cyan lights, peaceful atmosphere, hyper-detailed anime style, Studio Ghibli meets Blade Runner, 16:9",
+            "subway": "Inside a slightly worn dystopian cyberpunk subway car, flickering neon lights, a lone passenger wearing a futuristic tech-wear jacket looking out the rain-streaked window, moody cinematic lighting, photorealistic, Unreal Engine 5, 16:9",
+            "server_room": "Inside a massive futuristic server room, endless rows of dark servers with glowing cyan and blue LED lights, holographic data streams floating in the air, cold cinematic lighting, hyper-realistic, high tech environment, ray tracing, 16:9"
+        };
+
+        // Novos Dicionários para o YouTube (Títulos, Descrições e Tags)
+        const youtubeTemas = {
+            "hacker_room": "Rainy Hacker Night",
+            "neon_drive": "Midnight Night Drive",
+            "deep_space": "Deep Space Anomaly",
+            "arcade": "80s Arcade Nostalgia",
+            "rooftop": "Neo-Tokyo Skyline",
+            "subway": "Dystopian Commute",
+            "server_room": "Mainframe Protocol"
+        };
+
+        const youtubeSufixos = {
+            "lofi": "Chill Lo-Fi Beats",
+            "synthwave": "Cyberpunk Synthwave Mix",
+            "ambient": "Dark Ambient Focus",
+            "chillwave": "Dreamy Chillwave",
+            "industrial": "Heavy Industrial Beats",
+            "zen": "Zen Asian Ambient"
+        };
+
+        const youtubeTextosContexto = {
+            "hacker_room": "batidas relaxantes, som de chuva na janela e texturas analógicas. O ambiente perfeito para a tua madrugada de código ou estudo profundo.",
+            "neon_drive": "sintetizadores pulsantes e a energia de uma viagem noturna por uma cidade cyberpunk. Mantém o ritmo e o foco em alta.",
+            "deep_space": "frequências profundas e ecos cósmicos. Uma viagem meditativa para concentração total e isolamento acústico.",
+            "arcade": "melodias nostálgicas e a energia retro dos anos 80. Dá o play e entra no teu estado de fluxo.",
+            "rooftop": "uma mistura serena de eletrónica calma e vibrações urbanas. Perfeito para aliviar o stress e encontrar a paz no meio do caos.",
+            "subway": "ecos urbanos e um ritmo constante de uma viagem noturna. O cenário ideal para reflexão e trabalho ininterrupto.",
+            "server_room": "atmosferas high-tech frias e fluxos de dados constantes. A banda sonora definitiva para entrar na matrix e codificar sem distrações."
+        };
+
+        const youtubeTagsEspecificas = {
+            "lofi": "#LofiHipHop #StudyBeats #ChillVibes",
+            "synthwave": "#Synthwave #RetroSynth #CyberpunkMusic",
+            "ambient": "#DarkAmbient #SpaceMusic #DeepFocus",
+            "chillwave": "#Chillwave #Vaporwave #RelaxingMusic",
+            "industrial": "#IndustrialMusic #DarkSynth #HackerVibe",
+            "zen": "#ZenMusic #AmbientChill #NeoTokyo"
+        };
+
+        function gerarPrompts() {
+            var est = document.getElementById('estilo').value;
+            var frq = document.getElementById('frequencia').value;
+            var cen = document.getElementById('cenario').value;
+
+            // IA Prompts
+            document.getElementById('promptAudio').value = estilos[est] + frequencias[frq] + cenariosAudio[cen];
+            document.getElementById('promptImagem').value = cenariosImagem[cen];
+
+            // YouTube Título
+            var freqTag = frq !== "none" ? " [" + document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].text.split(" ")[0] + " Hz]" : "";
+            var tituloCompleto = youtubeTemas[cen] + " & " + youtubeSufixos[est] + " — [1 Hour Focus]" + freqTag;
+            document.getElementById('tituloYoutube').value = tituloCompleto;
+
+            // YouTube Descrição
+            var descricaoCompleta = "✨ *Mergulha nesta atmosfera imersiva e deixa a música guiar o teu foco.*\n\nBem-vindo ao **Cyberlofi Lab**. Esta sessão foi criada com " + youtubeTextosContexto[cen] + "\n\nDeixe nos comentários: **qual é a tua linguagem ou projeto de hoje?** Vamos construir esta comunidade juntos. 🚀\n\n🎧 **Trilha sonora:**\n00:00 - " + youtubeTemas[cen] + "\n\n📌 **Tags do canal:**\n" + youtubeTagsEspecificas[est] + " #CyberlofiLab #CodingMusic #DeepWork #Focus";
+            document.getElementById('descYoutube').value = descricaoCompleta;
+        }
+
+        function copiarTexto(idElemento, idBotao) {
+            var texto = document.getElementById(idElemento).value;
+            navigator.clipboard.writeText(texto).then(function() {
+                var botao = document.getElementById(idBotao);
+                var textoOriginal = botao.innerText;
+                
+                botao.innerText = "✓ COPIADO!";
+                botao.style.backgroundColor = "#00ffcc";
+                botao.style.color = "#000";
+                
+                setTimeout(function() {
+                    botao.innerText = textoOriginal;
+                    botao.style.backgroundColor = "#12121a";
+                    botao.style.color = "#00ffcc";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
