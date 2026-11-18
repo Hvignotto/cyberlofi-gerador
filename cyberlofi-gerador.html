@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyberlofi Lab — Gerador</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  body { background: #0b0f19; color: #f3f4f6; padding: 1.5rem 1rem 3rem; }
+  main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+  h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(90deg, #ff0844, #00DFD8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sub { color: #9ca3af; font-size: 0.9rem; margin-top: 0.25rem; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; background: #131c2e; border: 1px solid #1f293d; border-radius: 1rem; padding: 1.1rem; }
+  .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; font-weight: 600; margin-bottom: 0.35rem; }
+  select, input, textarea { width: 100%; background: #0b0f19; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.7rem; color: #f3f4f6; font-size: 0.9rem; outline: none; }
+  select:focus, input:focus, textarea:focus { border-color: #00DFD8; }
+  #gerar { grid-column: 1 / -1; background: linear-gradient(90deg, #ff0844, #00DFD8); border: none; border-radius: 0.6rem; padding: 0.95rem; font-size: 1rem; font-weight: 800; color: #0b0f19; cursor: pointer; }
+  #gerar:hover { opacity: 0.93; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  #info { font-size: 0.85rem; color: #00DFD8; font-weight: 600; }
+  .btn { background: #1f293d; border: 1px solid #374151; border-radius: 0.45rem; padding: 0.5rem 0.85rem; font-size: 0.8rem; font-weight: 600; color: #f3f4f6; cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: #00DFD8; color: #00DFD8; }
+  .box { background: #131c2e; border: 1px solid #1f293d; border-radius: 1rem; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .box h2 { font-size: 0.95rem; font-weight: 700; color: #00DFD8; }
+  .campo { display: flex; flex-direction: column; gap: 0.6rem; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+  .extra { border-top: 1px dashed #2d3b55; padding-top: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  textarea { resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; line-height: 1.45; overflow: hidden; }
+  .small textarea { font-size: 0.76rem; color: #cbd5e1; }
+  @media (max-width: 520px) { .controls { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Cyberlofi Lab</h1>
+    <p class="sub">Escolha o estilo, clique em Gerar e copie cada parte.</p>
+  </header>
+
+  <section class="controls">
+    <div>
+      <label for="estilo">Estilo</label>
+      <select id="estilo"></select>
+    </div>
+    <div>
+      <label for="duracao">Duração</label>
+      <select id="duracao">
+        <option value="1 Hour">1 hora</option>
+        <option value="2 Hours" selected>2 horas</option>
+        <option value="3 Hours">3 horas</option>
+        <option value="8 Hours">8 horas (sleep)</option>
+        <option value="Single">Faixa única (3–4 min)</option>
+      </select>
+    </div>
+    <div class="full">
+      <label for="tema">Tema (opcional, em inglês)</label>
+      <input id="tema" type="text" placeholder="Ex: Neon Rainfall, Midnight Tokyo Drive">
+    </div>
+    <button id="gerar" type="button">Gerar</button>
+  </section>
+
+  <div class="bar">
+    <span id="info"></span>
+    <button class="btn" id="copiarTudo" type="button">Copiar tudo</button>
+  </div>
+
+  <div id="saida" style="display:flex; flex-direction:column; gap:1.25rem;"></div>
+</main>
+
+<script>
+const ESTILOS = {
+ "cyberpunk": {
+  "nome": "Cyberpunk & Dark Synth Lofi",
+  "kw": "Cyberpunk Lofi",
+  "emoji": "🌃",
+  "use": "Coding",
+  "pov": "3 AM, Rain on the Glass",
+  "palette": "electric cyan and magenta neon against deep navy",
+  "subject": "a lone hooded figure with glowing headphones seen from behind",
+  "thumbTexts": [
+   "LOCK IN",
+   "3 AM",
+   "CODE MODE",
+   "SECTOR 09"
+  ],
+  "cenariosIdeais": [
+   "room",
+   "alley",
+   "glassbalcony",
+   "library"
+  ],
+  "audioPrompts": [
+   "Cyberpunk lofi hip hop beat, 75 BPM, dark analog synth pads, warm Rhodes electric piano, deep sub bass, dusty boom-bap drum breaks, nocturnal futuristic focus atmosphere",
+   "Dark synth lofi instrumental, 75 BPM, detuned analog polysynth chords, soft glitchy hi-hats, muffled kick, rain-soaked neon city mood, slow evolving filter sweeps",
+   "Futuristic lofi hip hop, 75 BPM, hazy electric piano loops, pulsing sub bass, vinyl-dusted snare, subtle cyber textures and distant data-stream blips"
+  ],
+  "titulos": [
+   "Neon Rainfall in Sector 09",
+   "Midnight Hacker Protocol",
+   "High-Rise Safehouse",
+   "Rainy Circuitry",
+   "Sublevel Cyber Sanctuary",
+   "Ghost in the Terminal"
+  ],
+  "leadEN": "Dark synth beats and rainy neon ambience to code, study and lock in.",
+  "usosEN": [
+   "Late-night coding and debugging",
+   "Deep study and focused work",
+   "Unwinding in a futuristic rainy atmosphere"
+  ],
+  "question": "What are you building tonight? 💻 Tell us below.",
+  "trackWords": {
+   "a": [
+    "Neon",
+    "Midnight",
+    "Static",
+    "Ghost",
+    "Chrome",
+    "Rain",
+    "Circuit",
+    "Voltage"
+   ],
+   "b": [
+    "Protocol",
+    "Drift",
+    "Signal",
+    "Skyline",
+    "Loop",
+    "Afterglow",
+    "Terminal",
+    "Uplink"
+   ]
+  },
+  "tags": [
+   "cyberpunk lofi",
+   "dark synth lofi",
+   "coding music",
+   "music for programmers",
+   "rainy cyberpunk ambience",
+   "futuristic lofi",
+   "deep focus beats",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#CyberpunkLofi",
+   "#CodingMusic",
+   "#DarkSynth",
+   "#DeepFocus",
+   "#CyberlofiLab"
+  ]
+ },
+ "chillwave": {
+  "nome": "Downtempo Chillwave & Night Drive",
+  "kw": "Chillwave Night Drive",
+  "emoji": "🚗",
+  "use": "Late Night Drives",
+  "pov": "Empty Highway at 2 AM",
+  "palette": "hot pink and teal sunset gradient with deep purple shadows",
+  "subject": "a lone silhouette in a retro jacket seen from behind",
+  "thumbTexts": [
+   "NIGHT DRIVE",
+   "2 AM",
+   "NO DESTINATION",
+   "HIGHWAY 2089"
+  ],
+  "cenariosIdeais": [
+   "nightcabrio",
+   "alley",
+   "glassbalcony"
+  ],
+  "audioPrompts": [
+   "Downtempo chillwave and dreamwave groove, 80 BPM, vintage 80s analog arpeggiators, lush chorus-drenched synth pads, warm pulsating synth bass, nostalgic midnight highway atmosphere",
+   "Retro synthwave chill instrumental, 80 BPM, gated reverb snare, shimmering Juno-style pads, soft arpeggiated bell lead, smooth driving bassline, neon road mood",
+   "Dreamy night drive chillwave, 80 BPM, tape-warped synth melodies, mellow electronic drums, glowing analog pads, cinematic empty-highway feeling"
+  ],
+  "titulos": [
+   "Tokyo Highway After Midnight",
+   "Highway 2089",
+   "Retro Horizon",
+   "Endless Overpass at 2 AM"
+  ],
+  "leadEN": "Dreamy 80s synths and glowing highway vibes for late night drives and flow.",
+  "usosEN": [
+   "Night drives and empty highways",
+   "Creative flow, design and editing",
+   "Unwinding with retro-futuristic frequencies"
+  ],
+  "question": "Where would you drive tonight? 🚗 Drop the city below.",
+  "trackWords": {
+   "a": [
+    "Neon",
+    "Midnight",
+    "Chrome",
+    "Pacific",
+    "Velvet",
+    "Overpass",
+    "Tokyo",
+    "Horizon"
+   ],
+   "b": [
+    "Cruise",
+    "Highway",
+    "Afterglow",
+    "Mirage",
+    "Skyline",
+    "Drive",
+    "Sunset",
+    "Reverie"
+   ]
+  },
+  "tags": [
+   "chillwave mix",
+   "night drive music",
+   "downtempo synthwave",
+   "retro 80s lofi",
+   "midnight drive playlist",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#NightDrive",
+   "#Chillwave",
+   "#Dreamwave",
+   "#RetroSynth",
+   "#CyberlofiLab"
+  ]
+ },
+ "jazzcafe": {
+  "nome": "Vintage Noir Jazz & Lounge",
+  "kw": "Noir Jazz",
+  "emoji": "🎷",
+  "use": "Reading",
+  "pov": "Rainy Midnight Jazz Lounge",
+  "palette": "warm amber and deep black with a touch of smoky teal",
+  "subject": "a lone figure in a hat seen from behind at a dimly lit table",
+  "thumbTexts": [
+   "NOIR JAZZ",
+   "2 AM LOUNGE",
+   "RAINY JAZZ",
+   "LAST CALL"
+  ],
+  "cenariosIdeais": [
+   "noirlounge",
+   "coffeeshop",
+   "bookstore",
+   "glassbalcony"
+  ],
+  "audioPrompts": [
+   "Vintage noir jazz lofi instrumental, 72 BPM, breathy muted tenor saxophone, smoky Rhodes piano, walking double bass, soft jazz brush drums, intimate late-night elegance",
+   "Late-night jazz lounge lofi, 72 BPM, warm upright piano comping, muted trumpet phrases, brushed snare, soft vinyl crackle, rainy window ambience",
+   "Smoky noir jazz hop, 72 BPM, sultry baritone sax melody, mellow vibraphone, deep upright bass, dusty drum break, cinematic detective atmosphere"
+  ],
+  "titulos": [
+   "The Last Noir Lounge",
+   "Midnight Espresso & Smoky Sax",
+   "Velvet Booths & Rainy Glass"
+  ],
+  "leadEN": "Smoky saxophone, soft piano and rainy lounge ambience for reading, writing and focus.",
+  "usosEN": [
+   "Reading, writing and refined focus",
+   "Coffee shop ambience and late-night relaxing",
+   "Fans of film noir and classic lofi jazz"
+  ],
+  "question": "Coffee or whiskey tonight? ☕🥃 Tell us below.",
+  "trackWords": {
+   "a": [
+    "Velvet",
+    "Midnight",
+    "Smoky",
+    "Amber",
+    "Rainy",
+    "Last",
+    "Quiet",
+    "Blue"
+   ],
+   "b": [
+    "Booth",
+    "Espresso",
+    "Sax",
+    "Alley",
+    "Hour",
+    "Table",
+    "Waltz",
+    "Encore"
+   ]
+  },
+  "tags": [
+   "vintage noir jazz",
+   "lofi jazz cafe",
+   "smoky jazz lounge",
+   "saxophone lofi",
+   "coffee shop jazz",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#NoirJazz",
+   "#JazzLofi",
+   "#CoffeeShopJazz",
+   "#VintageJazz",
+   "#CyberlofiLab"
+  ]
+ },
+ "rainy": {
+  "nome": "Rainy & Cozy Nostalgic Lofi",
+  "kw": "Rainy Lofi",
+  "emoji": "🌧️",
+  "use": "Study & Relax",
+  "pov": "It's Pouring, but You're Warm",
+  "palette": "soft warm amber against cool blue-grey rain tones",
+  "subject": "a person in a cozy sweater seen from behind watching the rain",
+  "thumbTexts": [
+   "RAINY NIGHT",
+   "SAFE INSIDE",
+   "COZY STUDY",
+   "RAIN & TEA"
+  ],
+  "cenariosIdeais": [
+   "coffeeshop",
+   "cabin",
+   "attic",
+   "bookstore",
+   "glassbalcony"
+  ],
+  "audioPrompts": [
+   "Cozy rainy lofi hip hop, 74 BPM, felt acoustic piano chords, soothing continuous rain hitting a windowpane, warm sub-bass, relaxed dusty boom-bap drums",
+   "Gentle rainy day lofi, 74 BPM, soft music-box melody, warm electric piano pads, light rain and distant thunder, mellow brushed drums",
+   "Calm cozy lofi instrumental, 74 BPM, muted felt piano, soft acoustic guitar pluck, steady rain on a skylight, tape-warm low end"
+  ],
+  "titulos": [
+   "A Quiet Night Above the Rainy City",
+   "Warm Tea & Raindrops",
+   "Safe Inside While the Storm Passes"
+  ],
+  "leadEN": "Soft piano and gentle rain to calm your mind, study and relax.",
+  "usosEN": [
+   "Studying, journaling and reading on rainy afternoons",
+   "Easing anxiety and slowing down before sleep",
+   "Creating a cozy refuge at home"
+  ],
+  "question": "What's the weather where you are right now? 🌧️",
+  "trackWords": {
+   "a": [
+    "Warm",
+    "Quiet",
+    "Soft",
+    "Gentle",
+    "Misty",
+    "Window",
+    "Slow",
+    "Cozy"
+   ],
+   "b": [
+    "Raindrops",
+    "Tea",
+    "Blanket",
+    "Skylight",
+    "Storm",
+    "Evening",
+    "Lullaby",
+    "Puddles"
+   ]
+  },
+  "tags": [
+   "rainy lofi",
+   "cozy lofi",
+   "lofi rain",
+   "study beats",
+   "relaxing piano lofi",
+   "rainy room ambience",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#RainyLofi",
+   "#CozyLofi",
+   "#StudyBeats",
+   "#RainAmbience",
+   "#CyberlofiLab"
+  ]
+ },
+ "vinylnostalgia": {
+  "nome": "Vinyl Tape Nostalgia",
+  "kw": "Vinyl Lofi",
+  "emoji": "📼",
+  "use": "Late Night Creativity",
+  "pov": "Cassette Tape from 1997",
+  "palette": "faded orange, mustard and warm brown with film-burn highlights",
+  "subject": "a person seen from behind sitting on the floor flipping through records",
+  "thumbTexts": [
+   "VINYL VIBES",
+   "1997 TAPE",
+   "DUSTY GROOVES",
+   "ANALOG"
+  ],
+  "cenariosIdeais": [
+   "vintagebedroom",
+   "attic",
+   "bookstore"
+  ],
+  "audioPrompts": [
+   "Nostalgic vinyl tape lofi hip hop, 70 BPM, warped cassette tape piano samples, authentic dusty vinyl crackles and needle pops, warm analog saturation",
+   "Dusty boom-bap lofi, 70 BPM, sampled jazz guitar loop, wobbling tape pitch, thick vinyl noise, soft muffled drums, 90s bedroom mood",
+   "Analog nostalgia lofi instrumental, 70 BPM, warped Rhodes chords, cassette hiss, slow dragging drums, memory-like dreamy atmosphere"
+  ],
+  "titulos": [
+   "Memories on Cracked Tape",
+   "1997 Bedroom Cassette Session",
+   "Dusty Grooves from the Attic"
+  ],
+  "leadEN": "Dusty vinyl crackle and warped cassette beats for quiet nights and creative work.",
+  "usosEN": [
+   "Late-night reflection and creative work",
+   "Studying with warm analog frequencies",
+   "Fans of 90s boom-bap and vintage hi-fi"
+  ],
+  "question": "What was the first album you ever owned? 📻",
+  "trackWords": {
+   "a": [
+    "Dusty",
+    "Faded",
+    "Warped",
+    "Analog",
+    "Side A",
+    "Old",
+    "Worn",
+    "Golden"
+   ],
+   "b": [
+    "Groove",
+    "Memory",
+    "Tape",
+    "Needle",
+    "Polaroid",
+    "Mixtape",
+    "Static",
+    "Sunday"
+   ]
+  },
+  "tags": [
+   "vinyl lofi",
+   "tape nostalgia lofi",
+   "warm vinyl crackle",
+   "analog lofi hip hop",
+   "90s lofi beats",
+   "cassette tape lofi",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#VinylLofi",
+   "#LofiHipHop",
+   "#CassetteVibes",
+   "#AnalogNostalgia",
+   "#CyberlofiLab"
+  ]
+ },
+ "acousticcozy": {
+  "nome": "Acoustic Guitar & Nature Lofi",
+  "kw": "Acoustic Lofi",
+  "emoji": "🎸",
+  "use": "Peaceful Mornings",
+  "pov": "Quiet Mountain Cabin",
+  "palette": "golden hour orange and deep forest green",
+  "subject": "a person seen from behind on a wooden porch holding an acoustic guitar",
+  "thumbTexts": [
+   "FOREST CABIN",
+   "UNPLUGGED",
+   "GOLDEN HOUR",
+   "PINE BREEZE"
+  ],
+  "cenariosIdeais": [
+   "porch",
+   "cabin",
+   "attic"
+  ],
+  "audioPrompts": [
+   "Organic acoustic guitar lofi, 68 BPM, warm fingerstyle nylon and steel-string guitar melodies, soft forest breeze and distant birdsong, peaceful nature cabin atmosphere",
+   "Gentle acoustic lofi instrumental, 68 BPM, fingerpicked steel-string arpeggios, soft shaker and kick, creek water and wind chimes, sunrise mountain mood",
+   "Warm unplugged lofi, 68 BPM, nylon guitar melody with light upright bass, crackling campfire texture, soft rain on leaves, calm woodland feel"
+  ],
+  "titulos": [
+   "The Forest Cabin at Golden Hour",
+   "Wooden Porch & Pine Breeze",
+   "Unplugged Morning in the Valley"
+  ],
+  "leadEN": "Gentle fingerstyle guitar and forest ambience for peaceful study, rest and calm mornings.",
+  "usosEN": [
+   "Stress-free study, reading and calm mornings",
+   "Disconnecting from screens",
+   "Nature lovers and unplugged sound"
+  ],
+  "question": "Mountains, forest or beach? 🌲 Pick your escape below.",
+  "trackWords": {
+   "a": [
+    "Golden",
+    "Pine",
+    "Morning",
+    "Quiet",
+    "Wooden",
+    "Misty",
+    "Gentle",
+    "Valley"
+   ],
+   "b": [
+    "Porch",
+    "Breeze",
+    "Trail",
+    "Cabin",
+    "Sunrise",
+    "Creek",
+    "Fingerpicks",
+    "Lullaby"
+   ]
+  },
+  "tags": [
+   "acoustic lofi",
+   "acoustic guitar lofi",
+   "nature lofi",
+   "forest cabin music",
+   "fingerstyle lofi",
+   "organic chill beats",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#AcousticLofi",
+   "#GuitarLofi",
+   "#NatureAmbience",
+   "#ForestCabin",
+   "#CyberlofiLab"
+  ]
+ },
+ "ambientfocus": {
+  "nome": "Ambient & Deep Focus Drone",
+  "kw": "Deep Focus Ambient",
+  "emoji": "🌌",
+  "use": "Deep Work",
+  "pov": "Entering a Lock-In Session",
+  "palette": "deep indigo and soft violet with a single bright cyan glow",
+  "subject": "a tiny lone figure seen from behind facing a huge glowing window",
+  "thumbTexts": [
+   "DEEP WORK",
+   "LOCK IN",
+   "ZERO DRUMS",
+   "FLOW STATE"
+  ],
+  "cenariosIdeais": [
+   "library",
+   "room",
+   "cabin",
+   "glassbalcony"
+  ],
+  "audioPrompts": [
+   "Deep focus ambient drone soundscape, 60 BPM, lush evolving synthesizer pads, warm sub-harmonic drone, zero harsh drums, alpha-state concentration music",
+   "Spacious ambient focus music, 60 BPM, slow evolving granular textures, soft sine drone, gentle pulsing low tones, no drums, calm weightless atmosphere",
+   "Minimal ambient study soundscape, 60 BPM, warm analog pad swells, distant shimmering tones, deep breathing sub bass, no percussion, steady flow-state mood"
+  ],
+  "titulos": [
+   "Quiet Hours in Sector 09",
+   "Zero Gravity Deep Work Station",
+   "Lock-In Protocol"
+  ],
+  "leadEN": "Drumless ambient pads for deep work, studying and uninterrupted flow state.",
+  "usosEN": [
+   "Programming sprints, Pomodoro sessions and deep reading",
+   "Academic research and exam prep",
+   "Meditation and noise masking"
+  ],
+  "question": "What are you locking in on today? 🎯",
+  "trackWords": {
+   "a": [
+    "Deep",
+    "Silent",
+    "Weightless",
+    "Orbital",
+    "Pale",
+    "Slow",
+    "Distant",
+    "Still"
+   ],
+   "b": [
+    "Drift",
+    "Horizon",
+    "Pulse",
+    "Signal",
+    "Field",
+    "Tide",
+    "Orbit",
+    "Stillness"
+   ]
+  },
+  "tags": [
+   "deep focus ambient",
+   "ambient music for work",
+   "flow state music",
+   "lock in playlist",
+   "drone music study",
+   "space ambient",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#DeepFocus",
+   "#AmbientMusic",
+   "#FlowState",
+   "#DeepWork",
+   "#CyberlofiLab"
+  ]
+ },
+ "darkblues": {
+  "nome": "Gentleman Dark Blues & Swamp",
+  "kw": "Dark Blues",
+  "emoji": "🥃",
+  "use": "Solitude",
+  "pov": "The Last Roadhouse",
+  "palette": "tungsten yellow and storm grey with deep black shadows",
+  "subject": "a lone man in a hat seen from behind under a porch light",
+  "thumbTexts": [
+   "DARK BLUES",
+   "LAST ROADHOUSE",
+   "SLIDE GUITAR",
+   "IN SILENCE"
+  ],
+  "cenariosIdeais": [
+   "dustyroad",
+   "noirlounge",
+   "porch"
+  ],
+  "audioPrompts": [
+   "Gentleman dark blues and slow swamp roadhouse instrumental, 65 BPM, gritty resonant slide guitar, deep upright bass, slow heavy foot-stomping kick, cinematic western noir",
+   "Slow smoky blues instrumental, 65 BPM, overdriven baritone guitar riffs, brushed snare, low Hammond organ swells, dusty highway night atmosphere",
+   "Swamp blues noir, 65 BPM, resonator slide guitar, stomping tambourine, deep bass, distant thunder, lonely roadhouse mood"
+  ],
+  "titulos": [
+   "The Last Roadhouse Before the Storm",
+   "Men Who Move in Silence",
+   "Whiskey Glass & Dusty Highway"
+  ],
+  "leadEN": "Gritty slide guitar and slow swamp blues for solitude, writing and late night roads.",
+  "usosEN": [
+   "Solitary night drives and workshop hours",
+   "Writing, whiskey and introspection",
+   "Fans of western noir and rustic blues"
+  ],
+  "question": "What's your late-night ritual? 🥃 Tell us below.",
+  "trackWords": {
+   "a": [
+    "Dusty",
+    "Last",
+    "Iron",
+    "Midnight",
+    "Slow",
+    "Lonesome",
+    "Gravel",
+    "Black"
+   ],
+   "b": [
+    "Roadhouse",
+    "Whiskey",
+    "Highway",
+    "Thunder",
+    "Slide",
+    "Porch",
+    "Crossroads",
+    "Silence"
+   ]
+  },
+  "tags": [
+   "dark blues",
+   "gentleman blues",
+   "swamp blues",
+   "slide guitar blues",
+   "men who move in silence",
+   "slow blues instrumental",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#DarkBlues",
+   "#SlideGuitar",
+   "#GentlemanBlues",
+   "#BluesInstrumental",
+   "#CyberlofiLab"
+  ]
+ },
+ "darkerotica": {
+  "nome": "Dark Erotica & Slow Trap Soul",
+  "kw": "Dark Trap Soul",
+  "emoji": "🍷",
+  "use": "Late Night Tension",
+  "pov": "2 AM, Crimson Lights",
+  "palette": "deep crimson and black with a thin gold rim light",
+  "subject": "a silhouette of a person seen from behind bathed in crimson backlight",
+  "thumbTexts": [
+   "AFTER HOURS",
+   "CRIMSON",
+   "SLOW 808s",
+   "2 AM"
+  ],
+  "cenariosIdeais": [
+   "silksuite",
+   "velvetshadows",
+   "nightcabrio",
+   "glassbalcony"
+  ],
+  "audioPrompts": [
+   "Dark erotica slow trap soul, 64 BPM, deep sub-heavy 808 glides, drenched reverb electric guitar licks, crisp slow trap hi-hats, dark velvet synthesizer pads, intense nocturnal tension",
+   "Moody slow trap soul instrumental, 64 BPM, booming 808 bass, reverb-soaked clean guitar, sparse snaps, dark Rhodes chords, seductive after-hours atmosphere",
+   "Dark romance trap soul, 64 BPM, melodic electric guitar loop, deep gliding sub bass, muted trap drums, smoky synth pads, late-night tension"
+  ],
+  "titulos": [
+   "Velvet Shadows & Heavy 808s",
+   "Crimson Tension Past 2 AM",
+   "Forbidden Hours"
+  ],
+  "leadEN": "Heavy slow 808s and dark reverb guitar for late night tension and after hours moods.",
+  "usosEN": [
+   "After hours bedroom ambience and dark romance",
+   "Moody night city drives",
+   "Fans of alternative R&B and heavy trap soul"
+  ],
+  "question": "Headphones or speakers for this one? 🎧🔥",
+  "trackWords": {
+   "a": [
+    "Crimson",
+    "Velvet",
+    "Midnight",
+    "Slow",
+    "Dark",
+    "Silk",
+    "After",
+    "Heavy"
+   ],
+   "b": [
+    "Hours",
+    "Tension",
+    "Glide",
+    "Shadows",
+    "Desire",
+    "Smoke",
+    "Bassline",
+    "Fever"
+   ]
+  },
+  "tags": [
+   "dark trap soul",
+   "dark romance playlist",
+   "slow 808 r&b",
+   "dark erotica music",
+   "seductive guitar beats",
+   "after hours trap soul",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#TrapSoul",
+   "#DarkRnB",
+   "#DarkRomance",
+   "#SlowJams",
+   "#CyberlofiLab"
+  ]
+ },
+ "midnightbedroom": {
+  "nome": "Late Night Bedroom R&B & Neo-Soul",
+  "kw": "Neo Soul",
+  "emoji": "🎹",
+  "use": "Unwinding",
+  "pov": "1 AM on the Balcony",
+  "palette": "warm amber and deep plum with soft gold highlights",
+  "subject": "a silhouette of a pianist seen from behind at a Fender Rhodes",
+  "thumbTexts": [
+   "NEO SOUL",
+   "1 AM",
+   "AFTER HOURS",
+   "SMOOTH"
+  ],
+  "cenariosIdeais": [
+   "glassbalcony",
+   "velvetshadows",
+   "silksuite",
+   "vintagebedroom"
+  ],
+  "audioPrompts": [
+   "Smooth late-night bedroom R&B and neo-soul instrumental, 68 BPM, lush warm Fender Rhodes 7th and 9th chords, round melodic fretless bassline, crisp rimshot snare",
+   "Silky neo-soul instrumental, 68 BPM, mellow Wurlitzer chords, warm electric bass groove, soft brushed hi-hats, subtle vinyl warmth, intimate after-midnight mood",
+   "Late night R&B groove, 68 BPM, jazzy Rhodes voicings, smooth bass slides, laid-back drums with ghost notes, gentle string pad, relaxed and sensual atmosphere"
+  ],
+  "titulos": [
+   "Silk Rhodes & City Lights at 1 AM",
+   "After Hours Neo-Soul Sanctuary",
+   "Velvet Chords for Two"
+  ],
+  "leadEN": "Warm Rhodes chords and silky grooves for unwinding after a long day.",
+  "usosEN": [
+   "Winding down after a long day",
+   "Creative work and late-night rest",
+   "Fans of instrumental neo-soul and R&B"
+  ],
+  "question": "What time do you usually press play? 🌙",
+  "trackWords": {
+   "a": [
+    "Silk",
+    "Velvet",
+    "Warm",
+    "Smooth",
+    "Honey",
+    "Midnight",
+    "Golden",
+    "Slow"
+   ],
+   "b": [
+    "Rhodes",
+    "Groove",
+    "Balcony",
+    "Chords",
+    "Skyline",
+    "Whisper",
+    "Embrace",
+    "Afterglow"
+   ]
+  },
+  "tags": [
+   "neo soul lofi",
+   "late night r&b",
+   "chill r&b instrumental",
+   "bedroom r&b",
+   "fender rhodes beats",
+   "smooth neo soul mix",
+   "cyberlofi lab"
+  ],
+  "hashYT": [
+   "#NeoSoul",
+   "#LateNightRnB",
+   "#ChillRnB",
+   "#SmoothGrooves",
+   "#CyberlofiLab"
+  ]
+ }
+};
+const CENARIOS = {
+ "room": {
+  "focal": "a rain-streaked panoramic window glowing with neon city lights",
+  "scene": "small apartment room at night with a wide window overlooking a rainy neon city, a desk with two monitors showing code",
+  "light": "the only light is the cool glow of the monitors mixed with magenta and cyan neon spilling through the rain-streaked glass",
+  "details": [
+   "a half-empty mug and crumpled sticky notes on the desk",
+   "headphones hanging off the corner of a monitor",
+   "a tangle of cables and a small plant",
+   "a hoodie thrown over the chair"
+  ]
+ },
+ "alley": {
+  "focal": "a glowing neon sign reflecting on a wet alley",
+  "scene": "narrow back alley in a neon-lit district just after rain",
+  "light": "light comes from hanging neon signs and a warm noodle-stall lantern reflected in the wet asphalt",
+  "details": [
+   "steam rising from a street grate",
+   "posters peeling off the wall",
+   "loose cables looping overhead",
+   "puddles rippling with reflections"
+  ]
+ },
+ "library": {
+  "focal": "a giant window with glowing bioluminescent jellyfish",
+  "scene": "quiet reading room with a huge window onto the deep sea and softly glowing jellyfish",
+  "light": "soft blue-green bioluminescent glow plus one warm reading lamp",
+  "details": [
+   "a worn armchair with a folded blanket",
+   "a stack of books and an open notebook",
+   "condensation on the glass",
+   "a small plant on the desk"
+  ]
+ },
+ "nightcabrio": {
+  "focal": "a glowing dashboard and rain-streaked windshield with a neon road ahead",
+  "scene": "view from the driver's seat of a car on an empty highway at midnight, rain on the windshield",
+  "light": "dashboard glow and distant city lights smeared by the wipers",
+  "details": [
+   "a handwritten playlist on a sticky note taped to the dash",
+   "raindrops sliding across the windshield",
+   "a coffee cup in the cupholder",
+   "a jacket draped over the passenger seat"
+  ]
+ },
+ "glassbalcony": {
+  "focal": "a balcony railing facing a bokeh city skyline in the rain",
+  "scene": "apartment balcony high above a city in light rain",
+  "light": "warm light from the room behind, with city bokeh glowing below",
+  "details": [
+   "two mismatched glasses on a small table",
+   "a blanket thrown over a chair",
+   "raindrops beading on the railing",
+   "a potted plant leaning toward the light"
+  ]
+ },
+ "noirlounge": {
+  "focal": "an amber-lit bar with a brass saxophone",
+  "scene": "empty jazz bar at 2 AM with rain on the street-facing window",
+  "light": "warm amber pendant lamps with soft smoke drifting through the beams",
+  "details": [
+   "a saxophone resting on a worn velvet chair",
+   "a half-finished drink on the bar",
+   "scuffed wooden floorboards",
+   "a handwritten setlist on a stand"
+  ]
+ },
+ "coffeeshop": {
+  "focal": "a steaming mug beside a rain-covered window",
+  "scene": "corner coffee shop on a rainy evening with a fogged-up window",
+  "light": "string lights and a warm lamp against the grey rain light from outside",
+  "details": [
+   "a steaming mug leaving a ring stain on the wooden table",
+   "a paperback lying face-down",
+   "fingerprints and condensation on the glass",
+   "a damp umbrella by the door"
+  ]
+ },
+ "bookstore": {
+  "focal": "an amber banker lamp over a stack of old books",
+  "scene": "old bookstore at night with crowded shelves",
+  "light": "a single green-shaded banker's lamp and cool rain light through an arched window",
+  "details": [
+   "books stacked unevenly on the floor",
+   "a cat asleep on a chair",
+   "dust floating in the lamp beam",
+   "handwritten price tags tucked into the books"
+  ]
+ },
+ "cabin": {
+  "focal": "a crackling fireplace glow with snow falling outside",
+  "scene": "wooden mountain cabin interior at dusk with snow and rain outside the glass wall",
+  "light": "firelight and one small lamp against the blue dusk outside",
+  "details": [
+   "a wool blanket crumpled on the sofa",
+   "boots drying by the fire",
+   "a mug on the armrest",
+   "firewood stacked unevenly"
+  ]
+ },
+ "attic": {
+  "focal": "a spinning vinyl record under a rainy skylight",
+  "scene": "attic room with slanted beams and a rain-streaked skylight",
+  "light": "string lights and a small lamp against the grey rainy skylight",
+  "details": [
+   "vinyl records leaning in uneven stacks",
+   "a turntable mid-spin",
+   "a threadbare rug and cushions",
+   "postcards taped to the beams"
+  ]
+ },
+ "vintagebedroom": {
+  "focal": "cassette tapes and a walkman under warm lamp light",
+  "scene": "teenager's bedroom in the 1990s at night",
+  "light": "warm bedside lamp and the dim glow of a CRT monitor",
+  "details": [
+   "cassette tapes scattered with handwritten labels",
+   "a portable cassette player with headphones",
+   "posters curling at the corners",
+   "a rain-streaked window with half-open blinds"
+  ]
+ },
+ "porch": {
+  "focal": "a wooden porch overlooking a misty pine forest at golden hour",
+  "scene": "wide wooden porch looking over a misty pine forest at golden hour",
+  "light": "low golden sun filtering through the trees",
+  "details": [
+   "an acoustic guitar leaning on a rocking chair",
+   "a worn wool blanket",
+   "a tin mug of tea on the railing",
+   "pine needles scattered across the boards"
+  ]
+ },
+ "dustyroad": {
+  "focal": "a lone roadhouse porch light on a stormy wet highway",
+  "scene": "lone roadhouse on a wet highway at night under a storm",
+  "light": "a single tungsten porch light reflected in the puddles",
+  "details": [
+   "a dusty pickup parked crooked",
+   "a flickering neon beer sign",
+   "wet gravel with tire tracks",
+   "a screen door slightly ajar"
+  ]
+ },
+ "silksuite": {
+  "focal": "crimson candlelight on black silk by a rainy window",
+  "scene": "dim bedroom suite at 3 AM with a rain-misted city window",
+  "light": "crimson candlelight and a thin city glow through the glass",
+  "details": [
+   "rumpled black sheets",
+   "a half-melted candle",
+   "a glass of wine on the nightstand",
+   "a robe draped over a chair"
+  ]
+ },
+ "velvetshadows": {
+  "focal": "red velvet curtains with a Fender Rhodes in a warm spotlight",
+  "scene": "after-hours lounge with heavy red velvet curtains",
+  "light": "one warm spotlight on a Fender Rhodes while the rest of the room falls into shadow",
+  "details": [
+   "sheet music scattered on the keys",
+   "a half-empty glass on top of the piano",
+   "vinyl shelves vanishing into the shadows",
+   "worn velvet with lighter patches"
+  ]
+ }
+};
+const HUMANO = {
+ "cyberpunk": {
+  "audioQuirks": [
+   "analog polysynth with slow filter drift and slight detune",
+   "Rhodes keys with uneven soft velocities and audible pedal noise",
+   "sub bass with gentle tape wobble",
+   "hi-hats with imperfect micro-timing"
+  ],
+  "foley": [
+   "faint mechanical keyboard typing in another room",
+   "soft rain against a window",
+   "low electronic hum of a computer fan",
+   "distant city traffic through glass"
+  ],
+  "film": "shot on CineStill 800T with red halation around the neon lights, 35mm lens at f/1.8, ISO 1600",
+  "illus": "hand-painted gouache lo-fi illustration, glowing neon painted with soft brush bleed"
+ },
+ "chillwave": {
+  "audioQuirks": [
+   "arpeggiator with slightly uneven note lengths",
+   "chorus-drenched pads with tape warble",
+   "gated snare with a touch of room bleed",
+   "analog bass with subtle pitch drift"
+  ],
+  "foley": [
+   "tires humming on wet asphalt",
+   "faint car radio static between stations",
+   "soft wind passing the window",
+   "a turn signal ticking quietly"
+  ],
+  "film": "shot on Kodak Vision3 500T with soft highlight bloom, 35mm lens at f/2, slight motion blur from the moving car",
+  "illus": "hand-painted retro anime-style illustration, airbrushed gradients with visible paper grain"
+ },
+ "jazzcafe": {
+  "audioQuirks": [
+   "breathy saxophone with audible key clicks and breaths",
+   "upright bass with finger squeaks and a little string buzz",
+   "brushed snare played slightly behind the beat",
+   "piano with felt thumps and soft pedal noise"
+  ],
+  "foley": [
+   "glasses clinking softly in the distance",
+   "low murmur of a late-night room",
+   "rain tapping the street window",
+   "ice settling in a glass"
+  ],
+  "film": "shot on Kodak Portra 800 with warm amber tones, 50mm lens at f/1.4, soft halation around the lamps",
+  "illus": "hand-painted ink and watercolor noir illustration with warm amber washes"
+ },
+ "rainy": {
+  "audioQuirks": [
+   "felt piano with soft uneven hammer noise",
+   "music-box notes slightly out of tune",
+   "acoustic guitar pluck with finger noise",
+   "warm electric piano with gentle tremolo"
+  ],
+  "foley": [
+   "steady rain on glass",
+   "distant soft thunder",
+   "a kettle simmering in another room",
+   "wind chimes barely audible"
+  ],
+  "film": "shot on Fujifilm Pro 400H with soft cool blue tones and warm window light, 35mm lens at f/2",
+  "illus": "hand-painted watercolor lo-fi illustration, rain streaks made with a dry brush"
+ },
+ "vinylnostalgia": {
+  "audioQuirks": [
+   "cassette tape with wow and flutter and an occasional dropout",
+   "sampled guitar loop with noticeable tape hiss",
+   "drums bounced to tape with a muffled thump",
+   "needle crackle with the occasional pop"
+  ],
+  "foley": [
+   "a vinyl needle dropping at the start",
+   "tape deck click and rewind whirr",
+   "paper record sleeve rustling",
+   "a distant TV murmur from another room"
+  ],
+  "film": "shot on expired Kodak Gold 200 with faded colors and light leaks, heavy grain, 35mm lens at f/2.8",
+  "illus": "hand-drawn 90s anime cel illustration, faded colors, grainy printed-paper texture"
+ },
+ "acousticcozy": {
+  "audioQuirks": [
+   "fingerstyle guitar with finger squeaks on the strings",
+   "nylon guitar with a slight fret buzz",
+   "guitar body knocks and breaths between phrases",
+   "shaker played loosely, a little off the grid"
+  ],
+  "foley": [
+   "birdsong at the edge of the mix",
+   "a creek running in the distance",
+   "wind through pine trees",
+   "wooden porch boards creaking softly"
+  ],
+  "film": "shot on Kodak Ektar 100 slightly underexposed, golden hour backlight, 35mm lens at f/2.8, natural lens flare",
+  "illus": "hand-painted gouache nature illustration, soft brush strokes, warm paper texture"
+ },
+ "ambientfocus": {
+  "semBateria": true,
+  "audioQuirks": [
+   "pad swells that never repeat exactly",
+   "slow granular textures with soft random modulation",
+   "sine drone with tiny pitch drift",
+   "distant tones fading in and out unpredictably"
+  ],
+  "foley": [
+   "faint room tone with a soft air-conditioner hum",
+   "slow distant wind",
+   "a soft clock ticking far away",
+   "the quiet breathing of an empty room"
+  ],
+  "film": "shot on CineStill 800T with a cool indigo cast and a long-exposure feel, 35mm lens at f/1.4, soft glow",
+  "illus": "hand-painted soft pastel illustration, gentle gradients with visible chalk texture"
+ },
+ "darkblues": {
+  "audioQuirks": [
+   "slide guitar with rough finger noise and sustain bends",
+   "upright bass with buzzing strings",
+   "foot stomp slightly off the beat",
+   "overdriven amp hum between the notes"
+  ],
+  "foley": [
+   "distant thunder rolling",
+   "gravel crunching under tires",
+   "a screen door creaking in the wind",
+   "a lone dog barking far away"
+  ],
+  "film": "shot on Kodak Vision3 500T with gritty grain and tungsten porch-light halation, 35mm lens at f/2",
+  "illus": "hand-inked western noir illustration with rough charcoal shading"
+ },
+ "darkerotica": {
+  "audioQuirks": [
+   "808 with natural analog distortion and slow glides",
+   "guitar drenched in reverb with soft pick noise",
+   "sparse snaps played slightly late",
+   "dark Rhodes with uneven velocity"
+  ],
+  "foley": [
+   "faint rain on a high-rise window",
+   "quiet room tone with a faint clock tick",
+   "distant muffled city",
+   "fabric rustling softly"
+  ],
+  "film": "shot on CineStill 800T with deep crimson halation, 50mm lens at f/1.4, shallow depth of field, heavy grain",
+  "illus": "hand-painted dark oil-pastel illustration, crimson glow with smudged edges"
+ },
+ "midnightbedroom": {
+  "audioQuirks": [
+   "Rhodes with uneven soft velocities and warm tremolo",
+   "fretless bass with finger slides and string noise",
+   "rimshot slightly behind the beat",
+   "Wurlitzer with mechanical key noise"
+  ],
+  "foley": [
+   "city hum from an open balcony door",
+   "a soft wooden floor creak",
+   "distant late-night traffic",
+   "ice shifting in a glass"
+  ],
+  "film": "shot on Kodak Portra 800 with warm amber and plum tones, 35mm lens at f/1.8, soft halation",
+  "illus": "hand-painted warm gouache illustration with soft plum and amber glow"
+ }
+};
+const POOLS = {
+ "moods": [
+  "melancholic minor key with a thread of hope",
+  "warm major-seventh harmony, gentle and hopeful",
+  "dreamy suspended chords, floating and unresolved",
+  "introspective and bittersweet, minor ninth voicings",
+  "calm and nostalgic, slow harmonic movement"
+ ],
+ "timing": [
+  "unquantized drums with a lazy behind-the-beat swing",
+  "slightly dragging snare and a kick landing a hair late, human push and pull",
+  "loose live-feel groove with uneven velocities and ghost notes",
+  "drummer playing a touch behind the click, imperfect but steady",
+  "swung hi-hats that breathe, no two hits at the same volume"
+ ],
+ "timingAmbient": [
+  "slow organic evolution with no rigid grid, nothing repeats exactly",
+  "gently drifting tempo feel, notes arriving a little early or late",
+  "textures that breathe in and out unpredictably"
+ ],
+ "room": [
+  "recorded in a small bedroom studio with natural room reflections",
+  "single-mic intimate room sound, a little dead and warm",
+  "close-mic'd with audible room tone between the notes",
+  "demo-tape feel, captured late at night in one relaxed take"
+ ],
+ "mix": [
+  "gentle tape saturation, rolled-off highs, warm low-mids, no brickwall limiting",
+  "soft analog compression, dynamics left alive, slightly muffled top end",
+  "lo-fi low-pass filter, subtle wow and flutter, warm centered image",
+  "tube-warm mix with soft clipping on the drums and natural dynamics"
+ ],
+ "audioNeg": "no perfectly quantized robotic drums, no EDM drops or risers, no brickwall loudness, no sterile digital polish, no autotuned vocals, no orchestral swells, no identical copy-paste loops, no sudden loud transitions",
+ "filmComp": [
+  "slightly off-center framing with natural asymmetry",
+  "candid handheld feel with a very slight tilt",
+  "shallow depth of field with a soft out-of-focus foreground",
+  "parts of the scene falling into shadow, not evenly lit"
+ ],
+ "filmImperf": [
+  "visible film grain",
+  "soft halation around the light sources",
+  "slight chromatic aberration at the edges",
+  "tiny dust specks and a faint lens smudge",
+  "gentle natural vignette",
+  "subtle motion blur"
+ ],
+ "imagemNeg": "plastic skin, oversmoothed, CGI look, 3d render, perfect symmetry, oversaturated colors, HDR, extra fingers, deformed hands, text, watermark, logo, signature, stock photo look",
+ "estruturaLonga": ", evolving arrangement with a subtle change every 15 to 20 minutes (soft intro, steady main groove, gentle variation, calm outro), seamless loopable ending",
+ "estruturaSingle": ", clear structure with intro, memorable hook, short bridge and soft outro"
+};
+
+
+const DUR = { "1 Hour": 60, "2 Hours": 120, "3 Hours": 180, "8 Hours": 480, "Single": 0 };
+
+const CAMPOS = [
+  { id: 'musica',    titulo: '1. Música (MusicGPT / Suno / Udio)', rows: 6, extra: { id: 'musicaNeg', rotulo: 'Evitar (campo exclude / negative)' } },
+  { id: 'imagem',    titulo: '2. Imagem do vídeo 16:9 (Leonardo.ai)', rows: 5, extra: { id: 'imagemNeg', rotulo: 'Negative prompt' } },
+  { id: 'thumb',     titulo: '3. Thumbnail (Leonardo.ai)', rows: 5, extra: { id: 'thumbTexto', rotulo: 'Texto para sobrepor na imagem' } },
+  { id: 'titulo',    titulo: '4. Título (3 opções, a primeira é a recomendada)', rows: 3 },
+  { id: 'descricao', titulo: '5. Descrição', rows: 12 },
+  { id: 'tags',      titulo: '6. Tags', rows: 3 }
+];
+
+const $ = id => document.getElementById(id);
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const titleCase = s => s.replace(/\S+/g, w => w[0].toUpperCase() + w.slice(1));
+const slug = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]/g, '');
+
+function cortar(txt, max) {
+  if (txt.length <= max) return txt;
+  const c = txt.slice(0, max + 1), i = c.lastIndexOf(' ');
+  return (i > max / 2 ? c.slice(0, i) : txt.slice(0, max)).replace(/[\s•|,\-—:]+$/, '');
+}
+
+// ---------- Música ----------
+function gerarMusica(cfg, hs, tema, single) {
+  const p = [rnd(cfg.audioPrompts), rnd(POOLS.moods), 'strictly instrumental, no lead vocals'];
+  if (tema) p.push(`thematic atmosphere inspired by "${tema}"`);
+  p.push(rnd(hs.semBateria ? POOLS.timingAmbient : POOLS.timing), ...pick(hs.audioQuirks, 2), rnd(POOLS.room),
+         `subtle background sounds: ${pick(hs.foley, 2).join(' and ')}`, rnd(POOLS.mix));
+  const neg = POOLS.audioNeg + ', no vocals, no choir' + (hs.semBateria ? ', no drums, no percussion' : '');
+  return { texto: p.join(', ') + (single ? POOLS.estruturaSingle : POOLS.estruturaLonga), neg };
+}
+
+// ---------- Imagem e thumbnail ----------
+function gerarImagem(sc, hs, tema) {
+  const imperf = POOLS.filmImperf.filter(i => !(/halation/.test(hs.film) && /halation/.test(i)));
+  const p = [sc.scene, sc.light, pick(sc.details, 3).join(', ')];
+  if (tema) p.push(`visual motifs of ${tema}`);
+  p.push(...pick(POOLS.filmComp, 2), hs.film, ...pick(imperf, 2), 'natural candid photograph', 'no text, no watermark');
+  return p.join(', ');
+}
+
+function gerarThumb(cfg, sc, hs, tema, durKey) {
+  const prompt = `YouTube thumbnail, ${cfg.subject}, hands out of frame, in front of ${sc.focal}` +
+    `${tema ? `, subtle visual motif of ${tema}` : ''}, single dominant focal element filling about 50% of the frame, strong rim lighting, ` +
+    `limited color palette of ${cfg.palette}, high contrast with a bright glowing center, readable at small size, ` +
+    `clean negative space on the left third for a text overlay, 16:9, ${hs.film}, visible film grain, sharp focus on the subject, no text, no watermark`;
+  const opcoes = shuffle([...cfg.thumbTexts, ...(durKey !== 'Single' ? [durKey.toUpperCase()] : [])]);
+  const texto = `${opcoes[0]}\nOutras opções: ${opcoes.slice(1, 3).join('  ·  ')}\n\nFonte grossa, até 3 palavras, no terço esquerdo, contraste alto com o fundo.`;
+  return { prompt, texto };
+}
+
+// ---------- Título ----------
+function gerarTitulos(cfg, tema, durKey) {
+  const dur = durKey === 'Single' ? '' : durKey;
+  const e = cfg.emoji, kw = cfg.kw;
+  const paren = dur ? ` (${dur})` : '', dot = dur ? ` · ${dur}` : '';
+  const grupos = [
+    shuffle(cfg.titulos).flatMap(n => [dur ? `${dur} of ${kw} ${e} ${n}` : `${kw} ${e} ${n}`, `${n} ${e} ${kw}${dot}`]),
+    [`POV: ${cfg.pov} ${e} ${kw}`],
+    [`Best ${kw} Mix for ${cfg.use}${paren}`, `${kw} for ${cfg.use}${paren} ${e}`]
+  ];
+  if (tema) { const t = titleCase(tema); grupos.unshift([`${t} ${e} ${kw}${dot}`, dur ? `${dur} of ${t} ${e} ${kw}` : `${t} ${e} ${kw}`]); }
+  const out = [];
+  for (const g of grupos) {
+    const ok = g.filter(t => t.length <= 60);
+    if (ok.length) out.push(rnd(ok));
+    if (out.length === 3) break;
+  }
+  if (!out.length) out.push(cortar(grupos[0][0], 60));
+  return out;
+}
+
+// ---------- Descrição ----------
+function tempo(seg) {
+  const h = Math.floor(seg / 3600), m = Math.floor(seg % 3600 / 60), s = seg % 60;
+  return (h ? h + ':' : '') + (h ? String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0');
+}
+
+function capitulos(cfg, durKey) {
+  const min = DUR[durKey];
+  if (!min) return '';
+  const total = min * 60, longo = min >= 480, usados = new Set(), linhas = [];
+  let t = 0, i = 1;
+  while (t < total - 120) {
+    let nome = '';
+    for (let k = 0; k < 30; k++) { nome = `${rnd(cfg.trackWords.a)} ${rnd(cfg.trackWords.b)}`; if (!usados.has(nome)) break; }
+    if (usados.has(nome)) nome += ` ${i}`;
+    usados.add(nome);
+    linhas.push(`${tempo(t)} ${longo ? `Part ${i} · ${nome}` : nome}`);
+    t += longo ? 1800 : 170 + Math.floor(Math.random() * 70);
+    i++;
+  }
+  return linhas.join('\n');
+}
+
+function gerarDescricao(cfg, tema, durKey) {
+  const dur = durKey === 'Single' ? '' : durKey;
+  const base = cfg.hashYT.filter(h => h.toLowerCase() !== '#cyberlofilab');
+  const s = slug(tema);
+  const vistos = new Set(), tags = [];
+  [base[0], base[1], ...(s && s.length <= 22 ? ['#' + s] : []), ...base.slice(2)].forEach(h => {
+    if (h && !vistos.has(h.toLowerCase())) { vistos.add(h.toLowerCase()); tags.push(h); }
+  });
+  const hashtags = [...tags.slice(0, 5), '#CyberlofiLab'].join(' ');
+  const L = [`🎧 ${dur ? dur + ' of ' : ''}${cfg.kw} — ${cfg.leadEN}`];
+  if (tema) L.push(`Inspired by "${tema}".`);
+  L.push('', 'Perfect for:', ...cfg.usosEN.map(u => `• ${u}`));
+  const cap = capitulos(cfg, durKey);
+  if (cap) L.push('', '⏱️ Tracklist:', cap);
+  L.push('', '👍 Like · 🔔 Subscribe for a new mix every week', `💬 ${cfg.question}`, '', '🎧 Curated by Cyberlofi Lab.', '', hashtags);
+  return L.join('\n');
+}
+
+// ---------- Tags ----------
+function gerarTags(cfg, tema, durKey) {
+  const base = [];
+  if (tema) base.push(tema.toLowerCase());
+  if (durKey !== 'Single') base.push(`${durKey} ${cfg.kw}`.toLowerCase());
+  base.push(...cfg.tags, cfg.nome.toLowerCase());
+  const vistos = new Set(), out = [];
+  let len = 0;
+  for (const t of base) {
+    const c = t.trim().replace(/#/g, '');
+    if (!c || vistos.has(c.toLowerCase())) continue;
+    vistos.add(c.toLowerCase());
+    const inc = c.length + (out.length ? 2 : 0);
+    if (len + inc > 500) break;
+    out.push(c); len += inc;
+  }
+  return out.join(', ');
+}
+
+// ---------- Interface ----------
+function autoajustar(t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; }
+
+function setTexto(id, valor) {
+  const t = $(id);
+  t.value = valor;
+  autoajustar(t);
+}
+
+async function copiarTexto(texto, btn) {
+  if (!texto) return;
+  const original = btn.textContent;
+  let ok = false;
+  try { await navigator.clipboard.writeText(texto); ok = true; }
+  catch (e) {
+    const tmp = document.createElement('textarea');
+    tmp.value = texto; tmp.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(tmp); tmp.select();
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    document.body.removeChild(tmp);
+  }
+  btn.textContent = ok ? 'Copiado ✓' : 'Falhou ✗';
+  setTimeout(() => { btn.textContent = original; }, 1300);
+}
+
+function criarCampo(id, rotulo, rows, extra) {
+  const wrap = document.createElement('div');
+  wrap.className = extra ? 'extra small' : 'campo';
+  const head = document.createElement('div');
+  head.className = 'head';
+  const l = document.createElement(extra ? 'label' : 'h2');
+  l.textContent = rotulo;
+  if (extra) l.style.marginBottom = '0';
+  const b = document.createElement('button');
+  b.className = 'btn'; b.type = 'button'; b.textContent = 'Copiar';
+  b.addEventListener('click', () => copiarTexto($(id).value, b));
+  head.append(l, b);
+  const t = document.createElement('textarea');
+  t.id = id; t.rows = rows;
+  t.addEventListener('input', () => autoajustar(t));
+  wrap.append(head, t);
+  return wrap;
+}
+
+function montarTela() {
+  const sel = $('estilo');
+  const alea = document.createElement('option');
+  alea.value = 'random'; alea.textContent = '🎲 Aleatório';
+  sel.appendChild(alea);
+  Object.keys(ESTILOS).forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = `${ESTILOS[k].emoji} ${ESTILOS[k].kw}`;
+    sel.appendChild(o);
+  });
+
+  CAMPOS.forEach(c => {
+    const box = document.createElement('section');
+    box.className = 'box';
+    box.appendChild(criarCampo(c.id, c.titulo, c.rows, false));
+    if (c.extra) box.appendChild(criarCampo(c.extra.id, c.extra.rotulo, 2, true));
+    $('saida').appendChild(box);
+  });
+}
+
+function gerar() {
+  const escolha = $('estilo').value;
+  const key = escolha === 'random' ? rnd(Object.keys(ESTILOS)) : escolha;
+  const cfg = ESTILOS[key], hs = HUMANO[key];
+  const sc = CENARIOS[rnd(cfg.cenariosIdeais)];
+  const durKey = $('duracao').value;
+  const tema = $('tema').value.trim();
+
+  const musica = gerarMusica(cfg, hs, tema, durKey === 'Single');
+  const thumb = gerarThumb(cfg, sc, hs, tema, durKey);
+
+  setTexto('musica', musica.texto);
+  setTexto('musicaNeg', musica.neg);
+  setTexto('imagem', gerarImagem(sc, hs, tema));
+  setTexto('imagemNeg', POOLS.imagemNeg);
+  setTexto('thumb', thumb.prompt);
+  setTexto('thumbTexto', thumb.texto);
+  setTexto('titulo', gerarTitulos(cfg, tema, durKey).join('\n'));
+  setTexto('descricao', gerarDescricao(cfg, tema, durKey));
+  setTexto('tags', gerarTags(cfg, tema, durKey));
+
+  $('info').textContent = `${cfg.emoji} ${cfg.nome}`;
+}
+
+function copiarTudo(btn) {
+  const partes = CAMPOS.map(c => {
+    let t = `${c.titulo.toUpperCase()}\n${$(c.id).value}`;
+    if (c.extra) t += `\n\n${c.extra.rotulo.toUpperCase()}\n${$(c.extra.id).value}`;
+    return t;
+  });
+  copiarTexto(partes.join('\n\n--------------------\n\n'), btn);
+}
+
+montarTela();
+$('gerar').addEventListener('click', gerar);
+$('copiarTudo').addEventListener('click', e => copiarTudo(e.currentTarget));
+gerar();
+</script>
+</body>
+</html>
